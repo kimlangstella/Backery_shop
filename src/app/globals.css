@@ -1,26 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #fff9f2;
+  --foreground: #2d1e1e;
+  --primary: #e85d41;
+  --secondary: #6b4e3d;
+  --accent: #fdf5e6;
+  --text-muted: #8c7676;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4;
+}
+
+/* Custom Utilities */
+.btn-primary {
+  @apply bg-[#e85d41] text-white px-8 py-3 rounded-full font-medium hover:bg-[#d14d34] transition-all;
+}
+
+.btn-secondary {
+  @apply bg-transparent border border-[#e85d41] text-[#e85d41] px-8 py-3 rounded-full font-medium hover:bg-[#e85d41] hover:text-white transition-all;
+}
+
+.card-specials {
+  @apply bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative text-center border border-slate-100;
+}
+
+.section-title {
+  @apply text-4xl md:text-5xl font-bold text-[#2d1e1e] mb-2;
+}
+
+.section-subtitle {
+  @apply text-[#e85d41] uppercase tracking-[0.2em] text-sm font-semibold mb-3;
 }

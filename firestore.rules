@@ -1,0 +1,78 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Bootstrap admin: allow a single known admin email.
+    // (Email is available on the auth token for Firebase Auth users.)
+    function isAdminEmail() {
+      return signedIn() && request.auth.token.email == "foxymoonton@gmail.com";
+    }
+
+    // Admin is determined by a Firestore user profile:
+    // /users/{uid}.role == "admin"
+    function isAdmin() {
+      return isAdminEmail()
+        || (
+          signedIn()
+          && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
+        );
+    }
+
+    // --- Products ---
+    match /products/{productId} {
+      // Public can read products (storefront).
+      allow read: if true;
+
+      // Only admins can manage products.
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Orders ---
+    match /orders/{orderId} {
+      // Create: signed-in users can create their own orders.
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+
+      // Read: user can read own orders; admin can read all.
+      allow get, list: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+
+      // Update/Delete: admin only (status changes, notes, cleanup).
+      allow update, delete: if isAdmin();
+    }
+
+    // --- Messages / Contact ---
+    match /messages/{messageId} {
+      // Create: signed-in users can submit support messages.
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+
+      // Admin can read/manage all messages.
+      allow read, update, delete: if isAdmin();
+    }
+
+    // --- Users (profiles used for admin checks) ---
+    match /users/{uid} {
+      // User can read their own profile; admin can read all.
+      allow get: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow list: if isAdmin();
+
+      // Only admins can create/update/delete profiles (prevents privilege escalation).
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Settings ---
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
