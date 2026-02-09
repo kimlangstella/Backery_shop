@@ -1,6 +1,8 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { type Product } from "@/lib/products";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 type CartItem = Product & { quantity: number };
 
@@ -32,10 +34,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Reset cart on Login/Logout
   useEffect(() => {
-    const { auth } = require("@/lib/firebase");
-    const { onAuthStateChanged } = require("firebase/auth");
-    
-    const unsubscribe = onAuthStateChanged(auth, (user: any) => {
+    const unsubscribe = onAuthStateChanged(auth, (_user: User | null) => {
       // Clear cart whenever user switches (even to null)
       setCart([]);
       localStorage.removeItem("cake_shop_cart");

@@ -38,7 +38,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div className="relative aspect-square mb-6 overflow-hidden flex items-center justify-center">
         <Image
-          src={product.images?.[0]?.src || (product as any).image || "/logo.png"}
+          src={product.images?.[0]?.src || "/images/placeholder.png"}
           alt={product.images?.[0]?.alt || product.name || "Product Image"}
           width={280}
           height={280}

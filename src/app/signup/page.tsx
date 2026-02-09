@@ -40,9 +40,10 @@ export default function SignupPage() {
 
       console.log("Signup successful!");
       router.push("/"); // Redirect to home
-    } catch (err: any) {
-      console.error("Signup error:", err);
-      setError(err.message || "An error occurred during signup.");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      console.error("Signup error:", error);
+      setError(error.message || "An error occurred during signup.");
     } finally {
       setLoading(false);
     }

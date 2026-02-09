@@ -8,10 +8,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getOrdersByUser, type Order } from "@/lib/db";
 
-function formatDate(value: any) {
+function formatDate(value: unknown) {
   try {
     if (!value) return "—";
-    if (value?.toDate) return value.toDate().toLocaleString();
+    const val = value as { toDate?: () => Date };
+    if (val?.toDate) return val.toDate().toLocaleString();
     const d = new Date(value);
     if (!Number.isNaN(d.getTime())) return d.toLocaleString();
     return "—";
@@ -118,7 +119,7 @@ export default function OrdersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-slate-700">
-                          {(o.items || []).slice(0, 2).map((it: any, idx: number) => (
+                          {(o.items || []).slice(0, 2).map((it, idx: number) => (
                             <div key={idx} className="flex items-center justify-between gap-3">
                               <span className="truncate max-w-[260px]">{it?.name || "Item"}</span>
                               <span className="text-xs text-slate-500 font-bold">x{it?.quantity || 1}</span>

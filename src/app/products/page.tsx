@@ -39,7 +39,7 @@ export default function ProductsPage() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {dbProducts.map((p) => (
             <div key={p.slug} className="transform hover:-translate-y-2 transition-transform duration-300">
-              <ProductCard product={p as any} /> 
+              <ProductCard product={p as DbProduct} /> 
             </div>
           ))}
         </div>

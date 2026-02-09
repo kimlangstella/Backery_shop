@@ -65,7 +65,7 @@ export default function Footer() {
   );
 }
 
-const SocialButton = ({ icon: Icon }: { icon: any }) => (
+const SocialButton = ({ icon: Icon }: { icon: React.ElementType }) => (
   <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#ff5c8a] text-white flex items-center justify-center transition-all duration-300">
      <Icon size={18} />
   </button>

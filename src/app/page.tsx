@@ -12,6 +12,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { isAdmin } from "@/lib/auth";
 import { getProducts, Product as DbProduct, AppUser, getUserProfile } from "@/lib/db";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -98,9 +99,12 @@ export default function Home() {
                  {/* Pink Blob/Plate background */}
                  <div className="absolute w-[350px] h-[350px] bg-[#ffd1dc] rounded-full blur-[80px] opacity-70"></div>
                  
-                 <img 
+                 <Image 
                     src="/images/cake-6.png" 
                     alt="Adorable Cake" 
+                    width={500}
+                    height={500}
+                    priority
                     className="relative z-10 w-full h-full object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-105" 
                  />
 
@@ -127,7 +131,7 @@ export default function Home() {
               {dbProducts.slice(0, 4).map((p) => (
                 <div key={p.slug} className="group">
                   <div className="bg-white p-4 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border-2 border-[#ffe5ec] hover:border-[#ffc2d1] h-full">
-                     <ProductCard product={p as any} />
+                     <ProductCard product={p as DbProduct} />
                   </div>
                 </div>
               ))}
@@ -148,9 +152,9 @@ export default function Home() {
            <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
               <div className="relative order-2 lg:order-1 group">
                  <div className="absolute -top-4 -left-4 w-full h-full border-4 border-[#ffc2d1] rounded-3xl transition-transform group-hover:translate-x-2 group-hover:translate-y-2"></div>
-                 <div className="relative rounded-3xl overflow-hidden aspect-square bg-[#fff0f3] flex items-center justify-center">
-                    <img src="../images/cake8.png" alt="Baker mixing ingredients" className="w-[60%] h-[60%] object-contain opacity-90" />
-                 </div>
+                  <div className="relative rounded-3xl overflow-hidden aspect-square bg-[#fff0f3] flex items-center justify-center">
+                     <Image src="/images/cake8.png" alt="Baker mixing ingredients" fill className="p-12 object-contain opacity-90" />
+                  </div>
               </div>
               
               <div className="space-y-6 order-1 lg:order-2">

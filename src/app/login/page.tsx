@@ -30,9 +30,10 @@ function LoginContent() {
       // For Admins, we go home (which now renders the dashboard)
       // For Users, we follow the redirect search param
       router.push("/");
-    } catch (err: any) {
-      console.error("Login error:", err);
-      if (err.code === "auth/invalid-credential") {
+    } catch (err: unknown) {
+      const error = err as { code?: string };
+      console.error("Login error:", error);
+      if (error.code === "auth/invalid-credential") {
         setError("Invalid email or password. Please check your spelling and try again.");
       } else {
         setError("An error occurred during sign in. Please try again later.");
@@ -50,8 +51,9 @@ function LoginContent() {
     try {
       await signInWithPopup(auth, provider);
       router.push(redirect);
-    } catch (err: any) {
-      console.error(`${providerName} login error:`, err);
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      console.error(`${providerName} login error:`, error);
       setError(`Failed to sign in with ${providerName}.`);
     } finally {
       setLoading(false);

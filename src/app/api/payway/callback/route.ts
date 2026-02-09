@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
         const formData = await req.formData();
         const tran_id = formData.get('tran_id') as string;
         const status = formData.get('status') as string;
-        const hash = formData.get('hash') as string;
+        const _hash = formData.get('hash') as string;
 
         console.log(`Received ABA Callback for Order: ${tran_id}, Status: ${status}`);
 
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
         return new Response('Invalid Status', { status: 400 });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Callback Error:", error);
         // Still return 200 to ABA to avoid infinite retries if the format is wrong
         // but log the error locally
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const orderId = searchParams.get('orderId');
-    const status = searchParams.get('status') || '0';
+    const _status = searchParams.get('status') || '0';
 
     if (orderId) {
         await updateOrderStatus(orderId, 'paid');

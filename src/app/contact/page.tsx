@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { isAdmin } from "@/lib/auth";
 import { saveMessage } from "@/lib/db";
 
 export default function ContactPage() {
@@ -88,9 +87,10 @@ export default function ContactPage() {
         message: "Thank you! Your message has been sent successfully. We'll get back to you soon." 
       });
       setFormData(prev => ({ ...prev, subject: "", message: "" }));
-    } catch (err: any) {
-      console.error("Error sending message:", err);
-      setStatus({ type: "error", message: err.message || "Failed to send message. Please try again." });
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      console.error("Error sending message:", error);
+      setStatus({ type: "error", message: error.message || "Failed to send message. Please try again." });
     }
   };
 

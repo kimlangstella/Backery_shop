@@ -16,8 +16,8 @@ export async function POST(req: Request) {
     // 2️⃣ Load ABA config from ENV (BACKEND ONLY)
     const MERCHANT_ID = process.env.ABA_MERCHANT_ID!;
     const PRIVATE_KEY = process.env.ABA_RSA_PRIVATE_KEY!.replace(/\\n/g, "\n");
-   const ABA_QR_API_URL =
-  "https://checkout-sandbox.payway.com.kh/api/payment-gateway/v1/payments/generate-qr";
+    const ABA_QR_API_URL =
+      "https://checkout-sandbox.payway.com.kh/api/payment-gateway/v1/payments/generate-qr";
 
     const abaBody = {
       merchantId: MERCHANT_ID,
@@ -82,10 +82,11 @@ export async function POST(req: Request) {
       amount
     });
 
-  } catch (err: any) {
-    console.error("💥 Generate QR Error:", err);
+  } catch (err: unknown) {
+    const error = err as { message?: string };
+    console.error("💥 Generate QR Error:", error);
     return NextResponse.json(
-      { error: err.message || "Internal server error" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     );
   }

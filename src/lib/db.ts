@@ -8,7 +8,6 @@ import {
     updateDoc,
     doc,
     deleteDoc,
-    onSnapshot,
     Timestamp,
     setDoc,
     where,
@@ -23,13 +22,20 @@ export interface Order {
     userName: string;
     phone: string;
     address: string;
-    items: any[];
+    items: {
+        id: string;
+        name: string;
+        price: number;
+        quantity: number;
+        image?: string;
+        images?: { src: string; alt: string }[];
+    }[];
     total: number;
     paymentMethod: string;
-    receiptImage?: string; // URL to the payment screenshot
-    adminNote?: string; // Internal notes for admins
+    receiptImage?: string;
+    adminNote?: string;
     status: "pending" | "paid" | "delivered" | "cancelled";
-    createdAt: Timestamp | any;
+    createdAt: Timestamp;
 }
 
 export const saveOrder = async (order: Omit<Order, "id" | "createdAt" | "status"> & { status?: Order["status"] }) => {
@@ -55,7 +61,7 @@ export interface Message {
     message: string;
     subject?: string;
     status: "unread" | "read" | "replied";
-    createdAt: Timestamp | any;
+    createdAt: Timestamp;
 }
 
 export const saveMessage = async (message: Omit<Message, "id" | "createdAt" | "status">) => {
@@ -102,8 +108,8 @@ export const getOrdersByUser = async (userId: string): Promise<Order[]> => {
         const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
 
         return orders.sort((a, b) => {
-            const aMs = a.createdAt?.toMillis ? a.createdAt.toMillis() : Number(new Date(a.createdAt).getTime() || 0);
-            const bMs = b.createdAt?.toMillis ? b.createdAt.toMillis() : Number(new Date(b.createdAt).getTime() || 0);
+            const aMs = a.createdAt?.toMillis ? a.createdAt.toMillis() : Number(new Date(a.createdAt as unknown as string).getTime() || 0);
+            const bMs = b.createdAt?.toMillis ? b.createdAt.toMillis() : Number(new Date(b.createdAt as unknown as string).getTime() || 0);
             return bMs - aMs;
         });
     } catch (error) {
@@ -140,8 +146,8 @@ export interface AppUser {
     password?: string;
     role: "admin" | "customer";
     status: "active" | "suspended";
-    createdAt: Timestamp | any;
-    lastLogin?: Timestamp | any;
+    createdAt: Timestamp;
+    lastLogin?: Timestamp;
 }
 
 export const getUsers = async () => {
@@ -200,12 +206,15 @@ export interface Product {
     name: string;
     price: number;
     description: string;
-    rating?: number;
+    rating: number;
     image?: string; // Simplification for MVP: single image URL
     category?: string;
-    size?: string; // Added size field
+    size?: string;
     status: "active" | "draft";
-    createdAt: Timestamp | any;
+    images: { src: string; width: number; height: number; alt: string }[];
+    sku: string;
+    brand: string;
+    createdAt: Timestamp;
 }
 
 export const saveProduct = async (product: Omit<Product, "id" | "createdAt" | "status">) => {

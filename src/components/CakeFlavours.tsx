@@ -1,14 +1,7 @@
 "use client";
 import Image from "next/image";
 
-const FLAVORS = [
-  { name: "Fruit Cake", side: "left" },
-  { name: "Fruit Cake", side: "left" },
-  { name: "Fruit Cake", side: "left" },
-  { name: "Fruit Cake", side: "right" },
-  { name: "Fruit Cake", side: "right" },
-  { name: "Fruit Cake", side: "right" }
-];
+
 
 export default function CakeFlavours() {
   return (

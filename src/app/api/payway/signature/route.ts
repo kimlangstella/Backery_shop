@@ -59,8 +59,9 @@ export async function POST(req: NextRequest) {
         const hash = sign.sign(formattedKey, 'base64');
 
         return NextResponse.json({ hash });
-    } catch (error: any) {
-        console.error("Signature Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as { message?: string };
+        console.error("Signature Error:", err);
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

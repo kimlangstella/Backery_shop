@@ -76,10 +76,11 @@ export async function POST(req: Request) {
             payload
         });
 
-    } catch (err: any) {
-        console.error("❌ ABA PayWay Error:", err);
+    } catch (err: unknown) {
+        const error = err as { message?: string };
+        console.error("❌ ABA PayWay Error:", error);
         return NextResponse.json(
-            { error: err.message || "Checkout failed" },
+            { error: error.message || "Checkout failed" },
             { status: 500 }
         );
     }

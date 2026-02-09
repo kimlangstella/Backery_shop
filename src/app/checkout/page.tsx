@@ -9,7 +9,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { auth, storage } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { isAdmin } from "@/lib/auth";
 import { saveOrder, getSettings, ShopSettings, getOrder, Order, updateOrderStatus } from "@/lib/db";
 import toast from "react-hot-toast";
 
@@ -26,13 +25,13 @@ export default function CheckoutPage() {
     address: "",
     paymentMethod: "aba" // 'aba' or 'cash'
   });
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [receiptFile] = useState<File | null>(null);
+  const [_uploadProgress, setUploadProgress] = useState(0);
   const [shopSettings, setShopSettings] = useState<ShopSettings | null>(null);
 
   const [isOrdered, setIsOrdered] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
-  const [abaQr, setAbaQr] = useState<{ content?: string, image?: string } | null>(null);
+  const [abaQr] = useState<{ content?: string, image?: string } | null>(null);
   const [isGeneratingQr, setIsGeneratingQr] = useState(false);
 
   useEffect(() => {
@@ -140,7 +139,7 @@ export default function CheckoutPage() {
         total: total,
         paymentMethod: formData.paymentMethod,
         receiptImage: receiptUrl,
-        status: (formData.paymentMethod === 'aba' && receiptUrl) ? 'paid' : 'pending' as any
+        status: (formData.paymentMethod === 'aba' && receiptUrl) ? 'paid' : 'pending' as 'paid' | 'pending' | 'delivered' | 'cancelled'
       });
       const orderId = orderDoc.id;
 
@@ -179,8 +178,9 @@ export default function CheckoutPage() {
               document.body.appendChild(form);
               form.submit();
               return; // User will be redirected to ABA
-          } catch (err: any) {
-              toast.error("Failed to redirect to ABA: " + err.message);
+          } catch (err: unknown) {
+              const error = err as { message?: string };
+              toast.error("Failed to redirect to ABA: " + error.message);
           } finally {
               setIsGeneratingQr(false);
           }
@@ -189,9 +189,10 @@ export default function CheckoutPage() {
       setIsOrdered(true);
       // Cart kept intact per user request
       window.scrollTo(0, 0);
-    } catch (error: any) {
-      console.error("Error placing order:", error);
-      toast.error(error.message || "Something went wrong. Please try again.");
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      console.error("Error placing order:", err);
+      toast.error(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
       setUploadProgress(0);
@@ -214,7 +215,7 @@ export default function CheckoutPage() {
                 ✓
               </div>
               <h1 className="text-4xl font-bold font-serif text-[#2d1e1e]">Order Placed!</h1>
-              <p className="text-[#8c7676] max-w-sm mx-auto">Thank you for your order. We'll contact you soon at <strong>{confirmedOrder?.phone || formData.phone}</strong> for delivery.</p>
+              <p className="text-[#8c7676] max-w-sm mx-auto">Thank you for your order. We&apos;ll contact you soon at <strong>{confirmedOrder?.phone || formData.phone}</strong> for delivery.</p>
             </div>
 
             <div className="p-12 space-y-10">
@@ -402,8 +403,8 @@ export default function CheckoutPage() {
                         </div>
                       ) : abaQr ? (
                         <div className="space-y-6">
-                           <div className="bg-white p-4 rounded-2xl shadow-sm inline-block">
-                              <img src={abaQr.image} alt="ABA QR Code" className="w-48 h-48 object-contain" />
+                           <div className="bg-white p-4 rounded-2xl shadow-sm inline-block relative w-48 h-48">
+                              <Image src={abaQr.image || ""} alt="ABA QR Code" fill className="object-contain" />
                            </div>
                            <div className="space-y-2">
                              <h4 className="font-bold text-[#2d1e1e] text-lg">Scan to Pay</h4>
@@ -446,7 +447,7 @@ export default function CheckoutPage() {
                 {cart.map((item) => (
                   <div key={item.slug} className="flex gap-4 items-center">
                     <div className="relative w-16 h-16 bg-white rounded-xl flex-shrink-0">
-                      <Image src={item.images?.[0]?.src || (item as any).image || "/logo.png"} alt={item.name} fill className="object-contain p-2" />
+                      <Image src={item.images?.[0]?.src || (item as { image?: string }).image || "/logo.png"} alt={item.name} fill className="object-contain p-2" />
                     </div>
                     <div className="flex-grow">
                       <p className="font-bold text-[#2d1e1e] text-sm">{item.name}</p>

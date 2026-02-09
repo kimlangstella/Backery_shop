@@ -51,12 +51,8 @@ import {
   Bell, 
   User as UserIcon, 
   TrendingUp, 
-  Clock, 
-  CreditCard,
-  CheckCircle2,
   AlertCircle,
   ChevronRight,
-  MoreVertical,
   Filter,
   X,
   Plus,
@@ -68,7 +64,7 @@ import {
 } from "lucide-react";
 
 // --- Components ---
-const SidebarItem = ({ icon: Icon, label, active, onClick, badge }: { icon: any, label: string, active: boolean, onClick: () => void, badge?: number }) => (
+const SidebarItem = ({ icon: Icon, label, active, onClick, badge }: { icon: React.ElementType, label: string, active: boolean, onClick: () => void, badge?: number }) => (
   <button 
     onClick={onClick}
     className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 group mb-1 ${
@@ -89,7 +85,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick, badge }: { icon: any,
   </button>
 );
 
-const StatCard = ({ label, value, icon: Icon, sub, trend }: { label: string, value: string, icon: any, sub: string, trend?: string }) => (
+const StatCard = ({ label, value, icon: Icon, sub, trend }: { label: string, value: string, icon: React.ElementType, sub: string, trend?: string }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-full hover:shadow-md transition-shadow duration-300">
     <div className="flex justify-between items-start mb-4">
       <div className="p-3 bg-pink-50 rounded-lg text-[#ff5c8a]">
@@ -220,9 +216,9 @@ export default function AdminDashboard() {
       try {
           await deleteDoc(doc(db, "products", id));
           setProducts(products.filter(p => p.id !== id));
-      } catch (e) {
+      } catch (e: unknown) {
           console.error("Error deleting product", e);
-          const err: any = e;
+          const err = e as { code?: string };
           const msg =
             err?.code === "permission-denied"
               ? "Permission denied. Update Firestore Rules for admin delete."
@@ -246,8 +242,9 @@ export default function AdminDashboard() {
                   try {
                       const userCred = await createUserWithEmailAndPassword(secondaryAuth, newUser.email, newUser.password);
                       finalUid = userCred.user.uid;
-                  } catch (authErr: any) {
-                      if (authErr.code === 'auth/email-already-in-use') {
+                  } catch (authErr: unknown) {
+                      const err = authErr as { code?: string };
+                      if (err.code === 'auth/email-already-in-use') {
                           toast.error("This email is already registered in Authentication.");
                           setIsSavingUser(false);
                           return;
@@ -264,9 +261,10 @@ export default function AdminDashboard() {
           setEditingUserId(null);
           setNewUser({ name: "", email: "", password: "", role: "customer", status: "active" });
           fetchData();
-      } catch (error: any) {
+      } catch (error: unknown) {
           console.error(error);
-          const msg = error.code === 'permission-denied' 
+          const err = error as { code?: string };
+          const msg = err.code === 'permission-denied' 
             ? "Permission Denied! Please update Firestore Rules." 
             : "Failed to save user";
           toast.error(msg);
@@ -324,9 +322,9 @@ export default function AdminDashboard() {
           await deleteDoc(doc(db, "orders", id));
           setOrders(orders.filter(o => o.id !== id));
           toast.success("Order deleted successfully");
-      } catch (e) {
+      } catch (e: unknown) {
           console.error("Error deleting order", e);
-          const err: any = e;
+          const err = e as { code?: string };
           const msg =
             err?.code === "permission-denied"
               ? "Permission denied. Update Firestore Rules for admin delete."
@@ -848,7 +846,7 @@ export default function AdminDashboard() {
               <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                 <div>
                   <h2 className="text-xl font-bold text-slate-800">Products</h2>
-                  <p className="text-sm text-slate-500">Manage your store's inventory</p>
+                  <p className="text-sm text-slate-500">Manage your store&apos;s inventory</p>
                 </div>
                 <button 
                   onClick={() => {
@@ -907,9 +905,9 @@ export default function AdminDashboard() {
                            <tr key={product.id} className="hover:bg-slate-50 transition-colors">
                              <td className="px-6 py-4">
                                <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 rounded-lg border border-slate-200 overflow-hidden relative bg-slate-100">
-                                     <img src={product.image || "/logo.png"} alt={product.name} className="w-full h-full object-cover" />
-                                  </div>
+                                   <div className="w-12 h-12 rounded-lg border border-slate-200 overflow-hidden relative bg-slate-100">
+                                      <Image src={product.image || "/logo.png"} alt={product.name} fill className="object-cover" />
+                                   </div>
                                   <div>
                                      <p className="text-sm font-medium text-slate-900">{product.name}</p>
                                      <p className="text-xs text-slate-500 truncate max-w-[150px]">{product.description}</p>
@@ -1065,12 +1063,13 @@ export default function AdminDashboard() {
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">ABA QR Code</label>
                       <div className="space-y-4">
-                        <div className="w-48 h-48 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center overflow-hidden">
+                        <div className="w-48 h-48 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center overflow-hidden relative">
                            {(settingsFile || shopSettings?.abaQrCode) ? (
-                              <img 
-                                src={settingsFile ? URL.createObjectURL(settingsFile) : shopSettings?.abaQrCode} 
+                              <Image 
+                                src={settingsFile ? URL.createObjectURL(settingsFile) : shopSettings?.abaQrCode!} 
                                 alt="ABA QR Preview" 
-                                className="w-full h-full object-contain"
+                                fill
+                                className="object-contain"
                               />
                            ) : (
                               <div className="text-slate-300 flex flex-col items-center">
@@ -1336,22 +1335,22 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-2 gap-4">
                            <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
-                              <select 
-                                value={newUser.role}
-                                onChange={(e) => setNewUser({...newUser, role: e.target.value as any})}
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5c8a]/20 focus:border-[#ff5c8a] transition-all font-medium text-slate-900"
-                              >
+                                <select 
+                                 value={newUser.role}
+                                 onChange={(e) => setNewUser({...newUser, role: e.target.value as "admin" | "customer"})}
+                                 className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5c8a]/20 focus:border-[#ff5c8a] transition-all font-medium text-slate-900"
+                               >
                                 <option value="customer">Customer</option>
                                 <option value="admin">Admin</option>
                               </select>
                            </div>
                            <div>
                               <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                              <select 
-                                value={newUser.status}
-                                onChange={(e) => setNewUser({...newUser, status: e.target.value as any})}
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5c8a]/20 focus:border-[#ff5c8a] transition-all font-medium text-slate-900"
-                              >
+                                <select 
+                                 value={newUser.status}
+                                 onChange={(e) => setNewUser({...newUser, status: e.target.value as "active" | "suspended"})}
+                                 className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5c8a]/20 focus:border-[#ff5c8a] transition-all font-medium text-slate-900"
+                               >
                                 <option value="active">Active</option>
                                 <option value="suspended">Suspended</option>
                               </select>
@@ -1397,11 +1396,12 @@ export default function AdminDashboard() {
                        <X className="w-5 h-5" />
                      </button>
                   </div>
-                  <div className="p-6 flex items-center justify-center bg-slate-100 min-h-[400px]">
-                     <img 
+                  <div className="p-6 flex items-center justify-center bg-slate-100 min-h-[400px] relative">
+                     <Image 
                        src={selectedReceipt} 
                        alt="Payment Receipt" 
-                       className="max-w-full max-h-[70vh] object-contain shadow-lg rounded-lg"
+                       fill
+                       className="object-contain"
                      />
                   </div>
                   <div className="p-4 bg-white border-t border-slate-100 flex justify-end">
@@ -1484,16 +1484,17 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="max-h-[420px] overflow-y-auto pr-2 space-y-3">
-                      {(selectedOrder.items || []).map((it: any, idx: number) => (
+                      {(selectedOrder.items || []).map((it, idx: number) => (
                         <div
                           key={idx}
                           className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors"
                         >
-                          <div className="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden flex items-center justify-center flex-shrink-0">
-                            <img
-                              src={it?.image || it?.images?.[0]?.src || "/logo.png"}
+                          <div className="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden flex items-center justify-center flex-shrink-0 relative">
+                            <Image
+                              src={it?.image || (it as any)?.images?.[0]?.src || "/logo.png"}
                               alt={it?.name || "Item"}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                           </div>
                           <div className="min-w-0 flex-grow">

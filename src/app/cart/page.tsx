@@ -59,7 +59,7 @@ export default function CartPage() {
                   <div key={item.slug} className="flex flex-col sm:flex-row items-center gap-8 pb-8 border-b border-slate-100">
                     <div className="relative w-32 h-32 bg-[#fdf5e6] rounded-2xl p-2">
                       <Image 
-                        src={item.images?.[0]?.src || (item as any).image || "/logo.png"} 
+                        src={item.images?.[0]?.src || (item as { image?: string }).image || "/logo.png"} 
                         alt={item.name} 
                         fill 
                         className="object-contain" 
